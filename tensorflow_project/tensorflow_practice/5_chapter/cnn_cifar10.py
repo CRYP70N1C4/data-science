@@ -3,10 +3,10 @@ import numpy as np
 import time
 import tensorflow as tf
 
-images_train, labels_train = cifar10_input.distorted_inputs(data_dir='../../../_dataset/cifar-10-batches-py',
+images_train, labels_train = cifar10_input.distorted_inputs(data_dir='../../../_dataset/cifar-10-batches-bin',
                                                             batch_size=128)
 
-images_test, labels_test = cifar10_input.inputs(eval_data=True, data_dir='../../../_dataset/cifar-10-batches-py',
+images_test, labels_test = cifar10_input.inputs(eval_data=True, data_dir='../../../_dataset/cifar-10-batches-bin',
                                                 batch_size=128)
 
 x_input = tf.placeholder(tf.float32, [None, 24, 24, 3])
@@ -38,7 +38,7 @@ def get_loss(logits, labels):
 
 
 def get_accuracy(logits, labels):
-    return tf.reduce_mean(tf.cast(tf.equal(tf.argmax(logits), tf.cast(labels, tf.int64)), tf.float32))
+    return tf.reduce_mean(tf.cast(tf.equal(tf.argmax(logits,-1), tf.cast(labels, tf.int64)), tf.float32))
 
 
 logits = predict(x_input)
