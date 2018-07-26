@@ -24,7 +24,7 @@ def predict(net):
 
 logits = predict(x_input)
 loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=y_input))
-train_op = tf.train.AdamOptimizer(learning_rate=0.01).minimize(loss)
+train_op = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss)
 accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(y_input, -1), tf.argmax(logits, -1)), tf.float32))
 
 with tf.Session() as sess:
