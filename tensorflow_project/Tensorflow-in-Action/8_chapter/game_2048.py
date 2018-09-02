@@ -4,27 +4,27 @@ from matplotlib import pyplot  as plt
 
 
 class Game(object):
-
     def __init__(self):
-        pass
+        self.reset()
 
     def reset(self):
         self.mat = np.zeros([4, 4], dtype=np.int32)
         self.__add()
         self.__add()
-        return self.mat
+        return self.mat.reshape(16)
 
     # 0 up 1 right 2 down 3 left
+    # env,reward,done,max_num
     def step(self, action):
         origin_mat = np.copy(self.mat)
         self.transpose(4 - action)
         self.__move_up()
-        self.__merge_up()
+        add_score = self.__merge_up()
         self.__move_up()
         self.transpose(action)
         if self.__changed(origin_mat) > 0:
             self.__add()
-        return self.__evaluate_all(origin_mat)
+        return self.mat.reshape(16), add_score, self.__done(), np.max(self.mat)
 
     def __move_up(self):
         change = False
@@ -38,14 +38,14 @@ class Game(object):
         return change
 
     def __merge_up(self):
-        cnt = 0
+        add_score = 0
         for i in range(4):
             for j in range(1, 4):
                 if self.mat[j][i] > 0 and self.mat[j][i] == self.mat[j - 1][i]:
                     self.mat[j - 1][i] *= 2
                     self.mat[j][i] = 0
-                    cnt += 1
-        return cnt;
+                    add_score += self.mat[j - 1][i]
+        return add_score;
 
     def __changed(self, mat):
         for i in range(4):

@@ -2,7 +2,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# You may obtain a.py copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -44,14 +44,14 @@ def read_cifar10(filename_queue):
   Args:
     filename_queue: A queue of strings with the filenames to read from.
   Returns:
-    An object representing a single example, with the following fields:
+    An object representing a.py single example, with the following fields:
       height: number of rows in the result (32)
       width: number of columns in the result (32)
       depth: number of color channels in the result (3)
-      key: a scalar string Tensor describing the filename & record number
+      key: a.py scalar string Tensor describing the filename & record number
         for this example.
       label: an int32 Tensor with the label in the range 0..9.
-      uint8image: a [height, width, depth] uint8 Tensor with the image data
+      uint8image: a.py [height, width, depth] uint8 Tensor with the image data
   """
 
   class CIFAR10Record(object):
@@ -59,24 +59,24 @@ def read_cifar10(filename_queue):
   result = CIFAR10Record()
 
   # Dimensions of the images in the CIFAR-10 dataset.
-  # See http://www.cs.toronto.edu/~kriz/cifar.html for a description of the
+  # See http://www.cs.toronto.edu/~kriz/cifar.html for a.py description of the
   # input format.
   label_bytes = 1  # 2 for CIFAR-100
   result.height = 32
   result.width = 32
   result.depth = 3
   image_bytes = result.height * result.width * result.depth
-  # Every record consists of a label followed by the image, with a
+  # Every record consists of a.py label followed by the image, with a.py
   # fixed number of bytes for each.
   record_bytes = label_bytes + image_bytes
 
-  # Read a record, getting filenames from the filename_queue.  No
+  # Read a.py record, getting filenames from the filename_queue.  No
   # header or footer in the CIFAR-10 format, so we leave header_bytes
   # and footer_bytes at their default of 0.
   reader = tf.FixedLengthRecordReader(record_bytes=record_bytes)
   result.key, value = reader.read(filename_queue)
 
-  # Convert from a string to a vector of uint8 that is record_bytes long.
+  # Convert from a.py string to a.py vector of uint8 that is record_bytes long.
   record_bytes = tf.decode_raw(value, tf.uint8)
 
   # The first bytes represent the label, which we convert from uint8->int32.
@@ -97,19 +97,19 @@ def read_cifar10(filename_queue):
 
 def _generate_image_and_label_batch(image, label, min_queue_examples,
                                     batch_size, shuffle):
-  """Construct a queued batch of images and labels.
+  """Construct a.py queued batch of images and labels.
   Args:
     image: 3-D Tensor of [height, width, 3] of type.float32.
     label: 1-D Tensor of type.int32
     min_queue_examples: int32, minimum number of samples to retain
       in the queue that provides of batches of examples.
     batch_size: Number of images per batch.
-    shuffle: boolean indicating whether to use a shuffling queue.
+    shuffle: boolean indicating whether to use a.py shuffling queue.
   Returns:
     images: Images. 4D tensor of [batch_size, height, width, 3] size.
     labels: Labels. 1D tensor of [batch_size] size.
   """
-  # Create a queue that shuffles the examples, and then
+  # Create a.py queue that shuffles the examples, and then
   # read 'batch_size' images + labels from the example queue.
   num_preprocess_threads = 16
   if shuffle:
@@ -147,7 +147,7 @@ def distorted_inputs(data_dir, batch_size):
     if not tf.gfile.Exists(f):
       raise ValueError('Failed to find file: ' + f)
 
-  # Create a queue that produces the filenames to read.
+  # Create a.py queue that produces the filenames to read.
   filename_queue = tf.train.string_input_producer(filenames)
 
   with tf.name_scope('data_augmentation'):
@@ -161,7 +161,7 @@ def distorted_inputs(data_dir, batch_size):
     # Image processing for training the network. Note the many random
     # distortions applied to the image.
 
-    # Randomly crop a [height, width] section of the image.
+    # Randomly crop a.py [height, width] section of the image.
     distorted_image = tf.random_crop(reshaped_image, [height, width, 3])
 
     # Randomly flip the image horizontally.
@@ -188,9 +188,9 @@ def distorted_inputs(data_dir, batch_size):
     min_queue_examples = int(NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN *
                              min_fraction_of_examples_in_queue)
     print ('Filling queue with %d CIFAR images before starting to train. '
-           'This will take a few minutes.' % min_queue_examples)
+           'This will take a.py few minutes.' % min_queue_examples)
 
-  # Generate a batch of images and labels by building up a queue of examples.
+  # Generate a.py batch of images and labels by building up a.py queue of examples.
   return _generate_image_and_label_batch(float_image, read_input.label,
                                          min_queue_examples, batch_size,
                                          shuffle=True)
@@ -219,7 +219,7 @@ def inputs(eval_data, data_dir, batch_size):
       raise ValueError('Failed to find file: ' + f)
 
   with tf.name_scope('input'):
-    # Create a queue that produces the filenames to read.
+    # Create a.py queue that produces the filenames to read.
     filename_queue = tf.train.string_input_producer(filenames)
 
     # Read examples from files in the filename queue.
@@ -246,7 +246,7 @@ def inputs(eval_data, data_dir, batch_size):
     min_queue_examples = int(num_examples_per_epoch *
                              min_fraction_of_examples_in_queue)
 
-  # Generate a batch of images and labels by building up a queue of examples.
+  # Generate a.py batch of images and labels by building up a.py queue of examples.
   return _generate_image_and_label_batch(float_image, read_input.label,
                                          min_queue_examples, batch_size,
                                          shuffle=False)
