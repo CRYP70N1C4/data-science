@@ -9,8 +9,6 @@ image_generator = ImageCaptcha(width=120, height=50)
 chars = [ch for ch in (string.ascii_lowercase + string.digits)]
 char_classes = len(chars)
 image_len = 4
-batch_size = 64
-epoch = 32
 
 
 def generate_label():
@@ -37,8 +35,8 @@ def get_train_data():
     dataset = tf.data.Dataset.from_generator(generate_label, output_types=tf.string)
     dataset = dataset.map(lambda label: {'labels': tf.py_func(func=encode_label, inp=[label], Tout=tf.float32),
                                          'images': tf.py_func(func=generate_image, inp=[label], Tout=tf.uint8)})
-    dataset = dataset.repeat(epoch)
-    dataset = dataset.batch(batch_size)
+    dataset = dataset.repeat(100000000)
+    dataset = dataset.batch(64)
     iterator = dataset.make_initializable_iterator()
     return iterator
 
@@ -54,24 +52,25 @@ def predict(x_input, keep_prob):
     return net
 
 
-def get_loss(y_input, y_pred):
-    y_expect_reshaped = tf.reshape(y_input, [-1, image_len, char_classes])
-    y_got_reshaped = tf.reshape(y_pred, [-1, image_len, char_classes])
+def get_loss_and_accuracy(y_input, y_pred):
+    y_input = tf.reshape(y_input, [-1, image_len, char_classes])
+    y_pred = tf.reshape(y_pred, [-1, image_len, char_classes])
     cross_entropy = tf.reduce_mean(
-        tf.nn.softmax_cross_entropy_with_logits(labels=y_expect_reshaped, logits=y_got_reshaped))
-    return cross_entropy
+        tf.nn.softmax_cross_entropy_with_logits(labels=y_input, logits=y_pred))
+    accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(y_input, -1), tf.argmax(y_pred, -1)), tf.float32))
+    return cross_entropy, accuracy
 
 
 x_input = tf.placeholder(tf.float32, [None, 120, 50, 3])
 y_input = tf.placeholder(tf.float32, [None, char_classes * image_len])
 keep_prob = tf.placeholder(tf.float32)
 y_pred = predict(x_input, keep_prob)
-loss = get_loss(y_input, y_pred)
+loss, accuracy = get_loss_and_accuracy(y_input, y_pred)
 train_op = tf.train.AdamOptimizer(1e-4).minimize(loss)
 
 iterator = get_train_data()
 next_element = iterator.get_next()
-with tf.Session() as sess:
+with tf.Session(config=tf.ConfigProto(device_count={'GPU': 0})) as sess:
     sess.run(tf.global_variables_initializer())
     sess.run(iterator.initializer)
     for i in range(1, 10000):
@@ -81,5 +80,5 @@ with tf.Session() as sess:
         feed_dict = {x_input: images, y_input: labels, keep_prob: 0.75}
         sess.run(train_op, feed_dict=feed_dict)
         if i % 50 == 0:
-            loss_val = sess.run(loss, feed_dict=feed_dict)
-            print("step = {} ,loss = {:.5f}".format(i, loss_val))
+            loss_val, accuracy_val = sess.run([loss, accuracy], feed_dict=feed_dict)
+            print("step = {} ,loss = {:.5f} , accuracy = {:.5f} ".format(i, loss_val, accuracy_val))

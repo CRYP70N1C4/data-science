@@ -46,7 +46,7 @@ class QNetwork():
 
 
 class replay_buffer():
-    def __init__(self, buffer_size=8000):
+    def __init__(self, buffer_size=20000):
         self.buffer = deque()
         self.buffer_size = buffer_size
 
@@ -79,14 +79,14 @@ np.random.seed(0)
 greedy = 0.9
 eposide_num = 100000000
 max_step = 200
-show_step = 20
-update_step = 10
+show_step = 2000
+update_step = 100
 batch_size = 100
-pre_trained_step = 8000
+pre_trained_step = 20000
 tau = 0.0001
 mainQN = QNetwork()
 targetQN = QNetwork()
-
+saver = tf.train.Saver(max_to_keep=3)
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     tf_vars = tf.trainable_variables()
@@ -120,15 +120,14 @@ with tf.Session() as sess:
                     batch_actions = mainQN.get_predict(sess, batch_observation_next)
                     batch_target_Q_next = targetQN.get_Qout(sess, batch_observation_next)
                     doubleQ = batch_target_Q_next[range(batch_size), batch_actions]
-                    targetQ = train_buffer[:, 2]
-                    if not done:
-                        targetQ += doubleQ * 0.99
+                    targetQ = train_buffer[:, 2] + doubleQ * 0.99
                     mainQN.learn(sess, env_input=np.vstack(train_buffer[:, 0]), actions=batch_actions, targetQ=targetQ)
                     sess.run(update_target)
 
         gloal_buffer.add_all(episode_buffer.buffer)
 
         if episode % show_step == 0:
+            saver.save(sess, 'model/dqn', global_step=episode, write_meta_graph=(episode == show_step))
             print(
                 "episode = {} ,duration = {:.5f} , step = {} ,final_score = {} ".format(episode, time.time() - start,
                                                                                         step,
