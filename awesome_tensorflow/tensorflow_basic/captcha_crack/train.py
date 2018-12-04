@@ -29,7 +29,7 @@ model_name = "cnn"
 model = get_model(model_name)
 saver = tf.train.Saver(max_to_keep=3)
 with tf.Session() as sess:
-    init(sess, "model_%s" % model_name)
+    init(sess, model_name)
     for step in range(1, 100001):
         images, labels = sess.run(datasets)
         if step % 100 == 0:
@@ -38,4 +38,4 @@ with tf.Session() as sess:
         else:
             model.train(sess, images, labels, False)
         if step % 2000 == 0:
-            saver.save(sess, "model_%s/%s" % (model_name, model_name))
+            saver.save(sess, "%s/" % model_name)

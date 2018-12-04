@@ -4,7 +4,7 @@ import tensorflow.contrib.slim as slim
 
 
 class Block(collections.namedtuple('Block', ['scope', 'unit_fn', 'args'])):
-    'A named tuple describing a.py ResNet block'
+    'A named tuple describing cifar_10.py ResNet block'
 
 
 def subsample(inputs, factor, scope=None):

@@ -11,7 +11,7 @@ class cnn():
         self.predict = self._inference()
         self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.labels, logits=self.predict))
         self.accuracy = self._get_accuracy()
-        self.train_op = tf.train.GradientDescentOptimizer(learning_rate=1e-4).minimize(self.loss)
+        self.train_op = tf.train.GradientDescentOptimizer(learning_rate=1e-5).minimize(self.loss)
 
     def _inference(self):
         net = slim.conv2d(self.inputs, 32, [5, 5])
@@ -23,7 +23,7 @@ class cnn():
         net = slim.flatten(net)
         net = slim.fully_connected(net, 1024)
         net = tf.nn.dropout(net, 0.75)
-        net = slim.fully_connected(net, self.char_len * self.num_classes, activation_fn=None)
+        net = slim.fully_connected(net, self.char_len * self.num_classes, activation_fn=tf.nn.sigmoid)
         return net
 
     def train(self, sess, images, labels, loss_accuracy=False):

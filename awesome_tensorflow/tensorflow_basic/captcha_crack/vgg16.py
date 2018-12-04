@@ -3,7 +3,6 @@ from tensorflow.contrib import slim
 
 
 class vgg16():
-
     def __init__(self, width, height, num_classes, char_len, channels=3):
         self.inputs = tf.placeholder(tf.float32, [None, width, height, channels])
         self.labels = tf.placeholder(tf.float32, [None, num_classes * char_len])
@@ -40,7 +39,7 @@ class vgg16():
         net = slim.flatten(net)
         net = slim.fully_connected(net, 4096)
         net = slim.fully_connected(net, 4096)
-        net = slim.fully_connected(net, self.char_len * self.num_classes, activation_fn=None)
+        net = slim.fully_connected(net, self.char_len * self.num_classes, activation_fn=tf.nn.sigmoid)
         return net
 
     def train(self, sess, images, labels, loss_accuracy=False):
